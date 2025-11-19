@@ -71,7 +71,7 @@ project_root/
         --mode=fast --no-rendering --stdout --stderr `
         webots_worlds\minimal_lane.wbt
      ```
-     When Webots starts, note the console line announcing the controller URL (e.g., `Waiting on port 1234 targeting 'EGO_CAR'`). Ensure every terminal running Python sets `WEBOTS_CONTROLLER_URL` to that exact value.
+     **Important**: When Webots starts, check the console output for the controller URL (e.g., `Controller: extern (ipc://127.0.0.1:6000/)` or `Waiting on port 1234 targeting 'EGO_CAR'`). You must set `WEBOTS_CONTROLLER_URL` in every terminal running Python scripts to match this exact value, otherwise the controllers won't connect.
 4. **Run a standalone local RL session**
    ```
    python controllers/rl_training.py --timesteps 2000 --log-dir runs/client1
@@ -102,10 +102,6 @@ project_root/
      --output-dir metrics/figures
    ```
 
-## Documentation
-
-See `docs/setup_guide.md` for detailed installation guidance (headless setup, CPU-only PyTorch, Webots configuration) and `docs/run_instructions.md` for step-by-step workflows covering local RL, federated rounds, evaluation, and plotting.
-
 ## CPU-Only & Resource Efficiency
 
 - Stable-Baselines3 models use compact MLP policies with small batch sizes.
@@ -116,7 +112,18 @@ See `docs/setup_guide.md` for detailed installation guidance (headless setup, CP
 
 Training scripts log episode reward, collision counts, lane deviation, and federated round aggregates to CSV files under `runs/`. The plotting utility generates PNG charts comparing local and global performance.
 
-## License
+### Understanding the Metrics
 
-MIT License. Use at your own risk; see documentation for recommended safety checks before deploying on physical robots.
+**Local Training Metrics** (`runs/local_client/metrics.csv`):
+- **X-axis**: Training steps (one data point per episode)
+- **Content**: Training metrics logged during each episode
+- Shows learning progress as the agent trains
+
+**Federated Learning Metrics** (`runs/federated/{client_id}/metrics.csv`):
+- **X-axis**: Federated learning rounds (one data point per round)
+- **Content**: Evaluation metrics after each round (average of 3 evaluation episodes)
+- Shows how well the aggregated model performs when evaluated
+- Individual training episodes within each round are not logged
+
+**Key Difference**: Local training shows per-episode training progress, while federated learning shows per-round evaluation of the aggregated model. The comparison plots normalize both to "Training Progress (%)" for fair comparison.
 
