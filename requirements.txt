@@ -1,0 +1,11 @@
+torch==2.2.1
+stable-baselines3==2.3.0
+gymnasium==0.29.1
+numpy==1.26.4
+pandas==2.2.2
+matplotlib==3.9.0
+flower==2.0.1
+psutil==5.9.8
+scikit-learn==1.5.1
+tensorboard==2.16.2
+

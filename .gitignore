@@ -1,0 +1,45 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Debug and demo scripts
+debug_output.txt
+demo_metrics_commands.py
+generate_sample_metrics.py
+
+# Generated plots
+metrics/figures/*.png
+
+# Training runs - keep only metrics.csv
+runs/**/*
+!runs/**/metrics.csv
+runs/**/tb/
+runs/**/*.zip
+runs/**/gym.monitor.csv
+
+# Model checkpoints
+*.zip
+
+# Webots project files
+*.wbproj
+
+# OS files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# Logs
+*.log
+
+# Docs (already ignored)
+docs/
