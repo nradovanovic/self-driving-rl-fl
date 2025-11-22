@@ -102,6 +102,23 @@ project_root/
      --output-dir metrics/figures
    ```
 
+7. **Visualize car paths (learning progression)**
+   ```
+   # Train with path logging enabled
+   python controllers/rl_training.py \
+     --timesteps 5000 \
+     --log-dir runs/local_client \
+     --log-paths \
+     --path-log-interval 10  # Log every 10th episode
+   
+   # Visualize paths showing progression from bad to good driving
+   python metrics/visualize_paths.py \
+     --paths-dir runs/local_client/paths \
+     --output metrics/figures/path_progression.png \
+     --episode-stride 1  # Show every episode, or use 5 to show every 5th
+   ```
+   This creates a visualization showing car paths on the elliptic road, with early episodes (bad driving) in red and later episodes (good driving) in green.
+
 ## CPU-Only & Resource Efficiency
 
 - Stable-Baselines3 models use compact MLP policies with small batch sizes.

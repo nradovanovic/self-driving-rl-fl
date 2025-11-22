@@ -8,7 +8,7 @@ from typing import Dict, List, Tuple
 import numpy as np
 import torch
 from stable_baselines3 import PPO
-from stable_baselines3.common.callbacks import BaseCallback
+from stable_baselines3.common.callbacks import BaseCallback, CallbackList
 from stable_baselines3.common.monitor import Monitor
 from stable_baselines3.common.vec_env import DummyVecEnv
 
@@ -17,6 +17,7 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 from controllers.env_wrapper import make_env
+from controllers.path_logger import PathLogger
 
 
 class MetricLogger(BaseCallback):
@@ -53,6 +54,8 @@ def train_local_agent(
     timesteps: int,
     log_dir: Path,
     learning_rate: float = 3e-4,
+    log_paths: bool = False,
+    path_log_interval: int = 10,
 ) -> Tuple[PPO, Path]:
     os.environ.setdefault("WEBOTS_CONTROLLER_URL", "ipc://")
     controller_url = os.environ["WEBOTS_CONTROLLER_URL"]
@@ -69,7 +72,15 @@ def train_local_agent(
         policy_kwargs=policy_kwargs,
     )
     logger = MetricLogger(log_dir / "metrics.csv")
-    model.learn(total_timesteps=timesteps, callback=logger)
+    callbacks = [logger]
+    
+    # Optionally add path logger
+    if log_paths:
+        path_logger = PathLogger(log_dir / "paths", log_every_n_episodes=path_log_interval)
+        callbacks.append(path_logger)
+    
+    callback = CallbackList(callbacks) if len(callbacks) > 1 else callbacks[0]
+    model.learn(total_timesteps=timesteps, callback=callback)
     checkpoint = log_dir / "ppo_webots.zip"
     model.save(checkpoint)
     env.close()
@@ -82,6 +93,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--timesteps", type=int, default=2000)
     parser.add_argument("--log-dir", type=Path, default=Path("runs/local"))
     parser.add_argument("--learning-rate", type=float, default=3e-4)
+    parser.add_argument("--log-paths", action="store_true", help="Log car paths for visualization")
+    parser.add_argument("--path-log-interval", type=int, default=10, help="Log path every N episodes")
     return parser.parse_args()
 
 
@@ -94,6 +107,8 @@ def main():
         timesteps=args.timesteps,
         log_dir=args.log_dir,
         learning_rate=args.learning_rate,
+        log_paths=args.log_paths,
+        path_log_interval=args.path_log_interval,
     )
     print(f"Training complete. Checkpoint saved to {checkpoint}")
 

@@ -4,6 +4,8 @@ Compare local training and federated learning metrics side by side.
 import argparse
 from pathlib import Path
 
+import matplotlib
+matplotlib.use('Agg')  # Use non-interactive backend for headless environments
 import matplotlib.pyplot as plt
 import pandas as pd
 
